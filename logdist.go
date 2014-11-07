@@ -5,13 +5,13 @@ import (
 	"fmt"
 	"github.com/dankozitza/seestack"
 	"github.com/dankozitza/shiftlist"
-	"net/http"
 	"log"
+	"net/http"
 	"os"
 )
 
 type LogDist struct {
-	Log *log.Logger
+	Log  *log.Logger
 	Tail *shiftlist.ShiftList
 }
 
@@ -26,7 +26,7 @@ func init() {
 		shiftlist.New(default_MaxIndex)}
 }
 
-func Message(file_path string, msg string) {
+func Message(file_path string, msg string, to_stdout bool) {
 
 	// distribute the message using various methods
 
@@ -35,26 +35,27 @@ func Message(file_path string, msg string) {
 	}
 
 	if _, ok := logs[file_path]; !ok {
-		fmt.Println(seestack.Short(), file_path, logs[file_path], ok)
 
 		fo, err := os.Create(file_path)
 		if err != nil {
 			panic(seestack.Short() + ": " + err.Error())
 		}
-		defer func() {
-			if err := fo.Close(); err != nil {
-				panic(seestack.Short() + ": " + err.Error())
-			}
-		}()
 		logs[file_path] = &LogDist{
 			log.New(fo, "", 0),
 			shiftlist.New(default_MaxIndex)}
 	}
 
+	//fmt.Println(seestack.Short(), file_path, logs[file_path].Tail)
+
+	// Somehow only the first use of Message("file", "msg") works
+	// maybe has to do with fo?
+
 	logs[file_path].Log.Print(msg)
 	logs[file_path].Tail.Add(msg)
 
-	if (file_path != "stdout") {
+	//fmt.Println(seestack.Short(), file_path, logs[file_path])
+
+	if file_path != "stdout" && to_stdout {
 		logs["stdout"].Log.Print(msg)
 		logs["stdout"].Tail.Add(msg)
 	}
