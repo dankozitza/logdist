@@ -8,6 +8,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"regexp"
 )
 
 type LogDist struct {
@@ -71,8 +72,22 @@ func (l LogDistHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		l = "stdout"
 	}
 
+	if _, ok := logs[string(l)]; !ok {
+
+		fo, err := os.Create(string(l))
+		if err != nil {
+			panic(seestack.Short() + ": " + err.Error())
+		}
+		logs[string(l)] = &LogDist{
+			log.New(fo, "", 0),
+			shiftlist.New(default_MaxIndex)}
+	}
+
 	for i := 0; i < logs[string(l)].Tail.NumEntries; i++ {
-		fmt.Fprint(w, logs[string(l)].Tail.Get(i))
+		r, _ := regexp.Compile("\n")
+		newline := r.ReplaceAllString(
+			logs[string(l)].Tail.Get(i).(string), "<br>\n")
+		fmt.Fprint(w, newline)
 	}
 	//fmt.Fprint(w, logs[string(l)].Tail)
 }

@@ -1,12 +1,12 @@
 package logdist
 
 import (
-   "fmt"
-   "syscall"
+	"fmt"
+	"io"
 	"net/http"
+	"os"
+	"syscall"
 	"testing"
-   "os"
-   "io"
 )
 
 var file_path string = "logdist_test_log.log"
@@ -34,35 +34,34 @@ func TestAll(t *testing.T) {
 
 func TestFile(t *testing.T) {
 
-   dummyfile := "first use of logdist.Message with file_path set\n" +
-      "THIS MESSAGE SHOULDNT BE SEEN IN STDOUT\n"
+	dummyfile := "first use of logdist.Message with file_path set\n" +
+		"THIS MESSAGE SHOULDNT BE SEEN IN STDOUT\n"
 
-   fi, err := os.Open(file_path)
-   if err != nil {
-      fmt.Println("TestFave: could not open saved log file:", file_path)
-      t.Fail()
-      return
-   }
+	fi, err := os.Open(file_path)
+	if err != nil {
+		fmt.Println("TestFave: could not open saved log file:", file_path)
+		t.Fail()
+		return
+	}
 
-   buff := make([]byte, 1024)
+	buff := make([]byte, 1024)
 
-   n, err := fi.Read(buff)
-   if err != nil && err != io.EOF {
-      fmt.Println("TestSave: could not read from config file:", file_path,
-         "err:", err)
-      t.Fail()
-      return
-   }
-   if string(buff[:n]) != dummyfile {
-      fmt.Println("TestSave: config file does not match dummy file:")
-      fmt.Println("saved file:", string(buff[:n]))
-      fmt.Println("dummy file:", dummyfile)
-      t.Fail()
-   }
+	n, err := fi.Read(buff)
+	if err != nil && err != io.EOF {
+		fmt.Println("TestSave: could not read from config file:", file_path,
+			"err:", err)
+		t.Fail()
+		return
+	}
+	if string(buff[:n]) != dummyfile {
+		fmt.Println("TestSave: config file does not match dummy file:")
+		fmt.Println("saved file:", string(buff[:n]))
+		fmt.Println("dummy file:", dummyfile)
+		t.Fail()
+	}
 }
 
-
 func TestClean(t *testing.T) {
-   fmt.Println("TestClean: removing", file_path)
-   syscall.Exec("/usr/bin/rm", []string{"rm", file_path}, nil)
+	fmt.Println("TestClean: removing", file_path)
+	syscall.Exec("/usr/bin/rm", []string{"rm", file_path}, nil)
 }
