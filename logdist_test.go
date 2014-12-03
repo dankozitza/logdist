@@ -16,15 +16,14 @@ func TestAll(t *testing.T) {
 	http.Handle("/logdist", ldh)
 	//go http.ListenAndServe("localhost:9000", nil)
 
-	Message("", "first use of logdist.Message() in TestAll\n", true)
+	Message("", true, "first use of logdist.Message() in TestAll\n")
 
-	Message(file_path, "first use of logdist.Message with "+
-		"file_path set\n", true)
+	Message(file_path, true, "first use of logdist.Message with "+
+		"file_path set\n")
 	var fldh LogDistHandler = LogDistHandler(file_path)
 	http.Handle("/logdist2", fldh)
 
-	Message(file_path, "THIS MESSAGE SHOULDNT BE SEEN IN STDOUT\n",
-		false)
+	Message(file_path, false, "THIS MESSAGE SHOULDNT BE SEEN IN STDOUT\n")
 
 	//for {
 	//	Message(file_path, "hi\n", true)

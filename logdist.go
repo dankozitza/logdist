@@ -27,7 +27,7 @@ func init() {
 		shiftlist.New(default_MaxIndex)}
 }
 
-func Message(file_path string, msg string, to_stdout bool) {
+func Message(file_path string, to_stdout bool, msg ...interface{}) {
 
 	// distribute the message using various methods
 
@@ -51,13 +51,13 @@ func Message(file_path string, msg string, to_stdout bool) {
 	// Somehow only the first use of Message("file", "msg") works
 	// maybe has to do with fo?
 
-	logs[file_path].Log.Print(msg)
+	logs[file_path].Log.Print(msg...)
 	logs[file_path].Tail.Add(msg)
 
 	//fmt.Println(seestack.Short(), file_path, logs[file_path])
 
 	if file_path != "stdout" && to_stdout {
-		logs["stdout"].Log.Print(msg)
+		logs["stdout"].Log.Print(msg...)
 		logs["stdout"].Tail.Add(msg)
 	}
 
