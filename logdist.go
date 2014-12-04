@@ -29,7 +29,8 @@ func init() {
 
 func Message(file_path string, to_stdout bool, msg ...interface{}) {
 
-	// distribute the message using various methods
+	// distribute the message using various methods. currently print to stdout,
+	// print to file, and store in shiftlist
 
 	if file_path == "" {
 		file_path = "stdout"
@@ -46,19 +47,14 @@ func Message(file_path string, to_stdout bool, msg ...interface{}) {
 			shiftlist.New(default_MaxIndex)}
 	}
 
-	//fmt.Println(seestack.Short(), file_path, logs[file_path].Tail)
+	strmsg := fmt.Sprint(msg...)
 
-	// Somehow only the first use of Message("file", "msg") works
-	// maybe has to do with fo?
-
-	logs[file_path].Log.Print(msg...)
-	logs[file_path].Tail.Add(msg)
-
-	//fmt.Println(seestack.Short(), file_path, logs[file_path])
+	logs[file_path].Log.Print(strmsg)
+	logs[file_path].Tail.Add(strmsg)
 
 	if file_path != "stdout" && to_stdout {
-		logs["stdout"].Log.Print(msg...)
-		logs["stdout"].Tail.Add(msg)
+		logs["stdout"].Log.Print(strmsg)
+		logs["stdout"].Tail.Add(strmsg)
 	}
 
 	return
@@ -83,11 +79,20 @@ func (l LogDistHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			shiftlist.New(default_MaxIndex)}
 	}
 
+	// print the strings in logs[string(l)].Tail
 	for i := 0; i < logs[string(l)].Tail.NumEntries; i++ {
-		r, _ := regexp.Compile("\n")
-		newline := r.ReplaceAllString(
-			logs[string(l)].Tail.Get(i).(string), "<br>\n")
-		fmt.Fprint(w, newline)
+
+		switch v := logs[string(l)].Tail.Get(i).(type) {
+
+		case string:
+			re, _ := regexp.Compile("\n")
+			newline := re.ReplaceAllString(v, "<br>\n")
+			fmt.Fprint(w, newline)
+
+		default:
+			// this should never happen. panic?
+			fmt.Fprint(w, v)
+			fmt.Fprint(w, "<br>\n")
+		}
 	}
-	//fmt.Fprint(w, logs[string(l)].Tail)
 }
