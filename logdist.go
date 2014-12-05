@@ -36,6 +36,7 @@ func Message(file_path string, to_stdout bool, msg ...interface{}) {
 		file_path = "stdout"
 	}
 
+	// create a new log object if we don't have one
 	if _, ok := logs[file_path]; !ok {
 
 		fo, err := os.Create(file_path)
@@ -60,9 +61,9 @@ func Message(file_path string, to_stdout bool, msg ...interface{}) {
 	return
 }
 
-type LogDistHandler string
+type HTTPHandler string
 
-func (l LogDistHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+func (l HTTPHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	if l == "" {
 		l = "stdout"

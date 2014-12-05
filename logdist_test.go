@@ -12,7 +12,7 @@ import (
 var file_path string = "logdist_test_log.log"
 
 func TestAll(t *testing.T) {
-	var ldh LogDistHandler
+	var ldh HTTPHandler // default is stdout
 	http.Handle("/logdist", ldh)
 	//go http.ListenAndServe("localhost:9000", nil)
 
@@ -20,7 +20,7 @@ func TestAll(t *testing.T) {
 
 	Message(file_path, true, "first use of logdist.Message with "+
 		"file_path set\n")
-	var fldh LogDistHandler = LogDistHandler(file_path)
+	var fldh HTTPHandler = HTTPHandler(file_path)
 	http.Handle("/logdist2", fldh)
 
 	Message(file_path, false, "THIS MESSAGE SHOULDNT BE SEEN IN STDOUT\n")
